@@ -4,6 +4,8 @@ import { inject as service } from '@ember/service';
 import { schedule } from '@ember/runloop';
 import { tracked } from '@glimmer/tracking';
 
+const DEFAULT_PREDICATE = () => true;
+
 export default class NavigationNarratorComponent extends Component {
   @service router;
 
@@ -28,11 +30,21 @@ export default class NavigationNarratorComponent extends Component {
     );
   }
 
+  get predicate() {
+    return this.args.predicate ?? DEFAULT_PREDICATE;
+  }
+
   constructor() {
     super(...arguments);
 
     // focus on the navigation message after render
     this.router.on('routeDidChange', () => {
+      let shouldFocus = this.predicate();
+
+      if (!shouldFocus) {
+        return;
+      }
+
       schedule('afterRender', this, function () {
         document.body.querySelector('#ember-a11y-refocus-nav-message').focus();
       });

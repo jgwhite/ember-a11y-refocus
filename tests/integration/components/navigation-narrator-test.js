@@ -80,5 +80,19 @@ module('Integration | Component | navigation-narrator', function (hooks) {
 
       assert.dom('#ember-a11y-refocus-nav-message').isFocused();
     });
+
+    test('it accepts custom change-detection logic', async function (assert) {
+      let router = this.owner.lookup('service:router');
+
+      this.set('predicate', () => false);
+
+      await render(hbs`<NavigationNarrator @predicate={{this.predicate}} />`);
+
+      router.trigger('routeDidChange');
+
+      await settled();
+
+      assert.dom('#ember-a11y-refocus-nav-message').isNotFocused();
+    });
   });
 });
